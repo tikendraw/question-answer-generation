@@ -1,2 +1,2 @@
 # question-answer-generation
-This Model finds answers form passages.
+This Model finds answers from passages.
