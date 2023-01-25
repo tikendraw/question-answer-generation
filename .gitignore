@@ -1,3 +1,5 @@
-dataset
+dataset/train_data_cleaned.csv
+dataset/test_data_cleaned.csv
+dataset/clean_squad_qna.csv
 universal_sentence_encoder
 
