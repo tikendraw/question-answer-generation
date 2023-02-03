@@ -64,8 +64,8 @@ if __name__=='__main__':
 
     # Anslen == 0 means there is no answers to the questions , we can separate this questions to use it  as test data
     df['answers_clean'] = df['answers'].apply(lambda x: x[0] if len(x) ==1 else x)
-    df['final_answer'] = df['answers_clean'].apply(lambda x: x['text'] if type(x)==dict else x)
-
+    df['answer_text'] = df['answers_clean'].apply(lambda x: x['text'] if type(x)==dict else x)
+	df['answer_start'] = df['answers_clean'].apply(lambda x: x['answer_start'] if type(x)==dict else x)
     # Creating a path to save
     main_path = pathlib.Path()
     dataset_dir = main_path/'dataset'
@@ -77,13 +77,13 @@ if __name__=='__main__':
     # quetions with no answers will be separated as test_data
     
     # train_Data
-    train_data = df[df['anslen'] > 0][['title', 'context','questions','final_answer']]
+    train_data = df[df['anslen'] > 0]
     train_data.dropna(axis=0, how= 'any')
     # saving train data to csv
     train_data.to_csv(f'{dataset_dir}/train_data_cleaned.csv')
 
     # test data
-    test_data = df[df['anslen'] < 1][['title', 'context','questions','final_answer']]
+    test_data = df[df['anslen'] < 1]
 
     # saving the test_data
     test_data.to_csv(f'{dataset_dir}/test_data_cleaned.csv')
