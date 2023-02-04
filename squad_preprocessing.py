@@ -9,82 +9,86 @@ Original file is located at
 
 import json
 import pandas as pd
-import os , pathlib
+import os, pathlib
 
 
 def aa(x):
-    print('len: ',len(x), '\ntype: ',type(x))
+    print("len: ", len(x), "\ntype: ", type(x))
     if type(x) == dict:
-        print('keys: ',x.keys())
+        print("keys: ", x.keys())
+
 
 """We will iterate over the data to get all the questions with answers"""
+
 
 def parse_data(all_data):
     blist = []
 
     for data in all_data:
-        data_title = data['title']
+        data_title = data["title"]
         # print(data_title)
-        for paras in data['paragraphs']:
-            data_context = paras['context']
+        for paras in data["paragraphs"]:
+            data_context = paras["context"]
             # aa(paras)
-            for qa in paras['qas']:
-                data_qs = qa['question']
-                data_id = qa['id']
-                data_ans = qa['answers']
-                data_imp = qa['is_impossible']
+            for qa in paras["qas"]:
+                data_qs = qa["question"]
+                data_id = qa["id"]
+                data_ans = qa["answers"]
+                data_imp = qa["is_impossible"]
                 final = {
-                    'title':data_title,
-                    'context': data_context,
-                    'ids': data_id,
-                    'questions': data_qs,
-                    'answers': data_ans,
-                    'is_imposible': data_imp
+                    "title": data_title,
+                    "context": data_context,
+                    "ids": data_id,
+                    "questions": data_qs,
+                    "answers": data_ans,
+                    "is_imposible": data_imp,
                 }
                 blist.append(final)
     return blist
 
 
+if __name__ == "__main__":
 
-if __name__=='__main__':
-
-    #read json
-    with open('dataset/train-v2.0.json', 'r') as f:
+    # read json
+    with open("dataset/train-v2.0.json", "r") as f:
         df = json.load(f)
 
-    #get data values from json
-    all_data = df['data']
+    # get data values from json
+    all_data = df["data"]
 
-    #parse data from json to pandas
+    # parse data from json to pandas
     blist = parse_data(all_data)
     df = pd.DataFrame.from_records(blist)
 
     # some entries doesn't have answers
-    df['anslen'] = df['answers'].apply(lambda x: len(x))
+    df["anslen"] = df["answers"].apply(lambda x: len(x))
 
     # Anslen == 0 means there is no answers to the questions , we can separate this questions to use it  as test data
-    df['answers_clean'] = df['answers'].apply(lambda x: x[0] if len(x) ==1 else x)
-    df['answer_text'] = df['answers_clean'].apply(lambda x: x['text'] if type(x)==dict else x)
-	df['answer_start'] = df['answers_clean'].apply(lambda x: x['answer_start'] if type(x)==dict else x)
+    df["answers_clean"] = df["answers"].apply(lambda x: x[0] if len(x) == 1 else x)
+    df["answer_text"] = df["answers_clean"].apply(
+        lambda x: x["text"] if type(x) == dict else x
+    )
+    df["answer_start"] = df["answers_clean"].apply(
+        lambda x: x["answer_start"] if type(x) == dict else x
+    )
     # Creating a path to save
     main_path = pathlib.Path()
-    dataset_dir = main_path/'dataset'
+    dataset_dir = main_path / "dataset"
     dataset_dir.mkdir(exist_ok=True)
 
-    df.to_csv(f'{dataset_dir}/clean_squad_qna.csv')
+    df.to_csv(f"{dataset_dir}/clean_squad_qna.csv")
 
     # Separated dataset Train data will have all the questions with answers
     # quetions with no answers will be separated as test_data
-    
+
     # train_Data
-    train_data = df[df['anslen'] > 0]
-    train_data.dropna(axis=0, how= 'any')
+    train_data = df[df["anslen"] > 0]
+    train_data.dropna(axis=0, how="any")
     # saving train data to csv
-    train_data.to_csv(f'{dataset_dir}/train_data_cleaned.csv')
+    train_data.to_csv(f"{dataset_dir}/train_data_cleaned.csv")
 
     # test data
-    test_data = df[df['anslen'] < 1]
+    test_data = df[df["anslen"] < 1]
 
     # saving the test_data
-    test_data.to_csv(f'{dataset_dir}/test_data_cleaned.csv')
-
+    test_data.to_csv(f"{dataset_dir}/test_data_cleaned.csv")
